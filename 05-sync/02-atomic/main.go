@@ -9,7 +9,29 @@ import (
 
 func main() {
 	runtime.GOMAXPROCS(4)
+	nonAtomicCase()
+	atomicCase()
+}
 
+func nonAtomicCase() {
+	counter := uint64(0)
+	var wg sync.WaitGroup
+
+	for i := 0; i < 50; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				counter++
+			}
+		}(i)
+	}
+	wg.Wait()
+	fmt.Println("Counter:", counter)
+
+}
+
+func atomicCase() {
 	counter := uint64(0)
 	var wg sync.WaitGroup
 
@@ -27,4 +49,5 @@ func main() {
 	}
 	wg.Wait()
 	fmt.Println("Counter:", counter)
+
 }
